@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="300.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="dashboardSceneController">
+   <top>
+      <MenuBar fx:id="menuBar" BorderPane.alignment="CENTER">
+         <menus>
+            <Menu mnemonicParsing="false" text="File">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Close" />
+                  <MenuItem fx:id="MenuItemExportSQL" mnemonicParsing="false" onAction="#exportSQL" text="Export SQL" />
+                  <MenuItem fx:id="MenuItemExportSQLMenuItemExportCSV" mnemonicParsing="false" onAction="#exportCSV" text="Export  CSV" />
+                  <MenuItem fx:id="MenuItemExportSQLMenuItemExportPDF" mnemonicParsing="false" onAction="#exportPDF" text="Export  PDF" />
+                  <MenuItem fx:id="MenuItemExportSQLMenuItemExportEXCEL" mnemonicParsing="false" onAction="#exportEXCEL" text="Import EXCEL" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+               <items>
+                  <MenuItem fx:id="editOption" mnemonicParsing="false" onAction="#OpenOptionDialog" text="Edit options" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="About" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+   </top>
+   <center>
+      <LineChart prefHeight="293.0" prefWidth="319.0" BorderPane.alignment="CENTER">
+        <xAxis>
+          <CategoryAxis side="BOTTOM" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis side="LEFT" />
+        </yAxis>
+      </LineChart>
+   </center>
+</BorderPane>
