@@ -1,12 +1,12 @@
 package realtime;
-import javafx.application.Application;
+
 import javafx.application.Platform;
-import javafx.scene.Scene;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
-import javafx.stage.Stage;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,43 +16,41 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 
-public class RealtimeChart extends Application {
+public class RealtimeChart<X,Y> extends LineChart {
 
-    final int WINDOW_SIZE = 10;
+    final int WINDOW_SIZE = 100;
     private ScheduledExecutorService scheduledExecutorService;
+    Series<String, Number> series;
 
-    public static void main(String[] args) {
-        launch(args);
-    }
 
-    public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("JavaFX Realtime Chart Demo");
+    public RealtimeChart(CategoryAxis xAxis, NumberAxis yAxis) {
+        super(xAxis, yAxis);
+
         //defining the axes
-        final CategoryAxis xAxis = new CategoryAxis(); // we are gonna plot against time
-        final NumberAxis yAxis = new NumberAxis();
-        xAxis.setLabel("Time/s");
-        xAxis.setAnimated(false); // axis animations are removed
-        yAxis.setLabel("Value");
-        yAxis.setAnimated(false); // axis animations are removed
+        this.getXAxis().setLabel("Time/s");
+        this.getXAxis().setAnimated(false); // axis animations are removed
+        this.getYAxis().setLabel("Value");
+        this.getYAxis().setAnimated(false); // axis animations are removed
 
-        //creating the line chart with two axis created above
-        final LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
-        lineChart.setTitle("Realtime JavaFX Charts");
-        lineChart.setAnimated(false); // disable animations
-
-        //defining a series to display data
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series = new Series<>();
         series.setName("Data Series");
 
+        //creating the line chart with two axis created above
+        this.setTitle("Realtime Bitcoin Price");
+        this.setAnimated(false); // disable animations
+        this.setLegendVisible(true);
+
+    }
+
+    public void updateData(){
+        //defining a series to display data
+//        Series<String, Number> series = new Series<>();
+//        series.setName("Data Series");
+
+        ObservableList<Series<String, Number>> data = FXCollections.observableArrayList();
+        data.add(series);
         // add series to chart
-        lineChart.getData().add(series);
-
-        // setup scene
-        Scene scene = new Scene(lineChart, 800, 600);
-        primaryStage.setScene(scene);
-
-        // show the stage
-        primaryStage.show();
+        this.setData(data);
 
         // this is used to display time in HH:mm:ss format
         final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -78,9 +76,4 @@ public class RealtimeChart extends Application {
         }, 0, 1, TimeUnit.SECONDS);
     }
 
-    @Override
-    public void stop() throws Exception {
-        super.stop();
-        scheduledExecutorService.shutdownNow();
-    }
 }
