@@ -5,10 +5,8 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 import java.io.FileInputStream;
@@ -29,28 +27,28 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle("JavaFX Realtime Chart Demo");
+        primaryStage.setTitle("Login");
 
         // Create the FXMLLoader
         FXMLLoader loader = new FXMLLoader();
         // Path to the FXML File
-        String fxmlDocPath = "./src/fxml/dashboardScene.fxml";
+        String fxmlDocPath = "./src/fxml/loginScreen.fxml";
         FileInputStream fxmlStream = new FileInputStream(fxmlDocPath);
 
         // Create the Pane and all Details
-        BorderPane root = (BorderPane) loader.load(fxmlStream);
+        Stage loginScreen = (Stage) loader.load(fxmlStream);
 
         // setup scene
-        Scene scene = new Scene(root);
-        primaryStage.setScene(scene);
+//        Scene scene = new Scene(loginScreen);
+//        primaryStage.setScene(scene);
 
         // show the stage
-        primaryStage.show();
-        LineChart<String, Double> chart = (LineChart<String, Double>) loader.getNamespace().get("chart");
+        loginScreen.show();
+//        LineChart<String, Double> chart = (LineChart<String, Double>) loader.getNamespace().get("chart");
 //        LineChart<String, Double> chart = (LineChart<String, Double>) ((AnchorPane)
 //                        ((SplitPane) root.getCenter()).getItems().get(1))
 //                        .getChildren();
-        updateData(chart);
+//        updateData(chart);
 
 
 //        System.out.println(( (RealtimeChart)
