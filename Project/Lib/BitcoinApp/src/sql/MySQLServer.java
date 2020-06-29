@@ -42,7 +42,8 @@ public class MySQLServer {
         return list;
     }
 
-    public static ArrayList select(String table, Map<String, String> kvs){
+
+    public static ArrayList select(String strSelect){
         try (
                 // Step 1: Allocate a database 'Connection' object
                 Connection conn = DriverManager.getConnection(url, user, pw);   // For MySQL only
@@ -51,28 +52,10 @@ public class MySQLServer {
                 // Step 2: Allocate a 'Statement' object in the Connection
                 Statement stmt = conn.createStatement();
         ) {
-            // Step 3: Execute a SQL SELECT query. The query result is returned in a 'ResultSet' object.
-            StringBuffer strSelect = new StringBuffer();
-            strSelect.append("select * from " + table + " where ");
-            for (Map.Entry<String, String> entry : kvs.entrySet()){
-                strSelect.append(entry.getKey() + "='" + entry.getValue() + "' and ");
-            }
-            strSelect.replace(strSelect.length()-4, strSelect.length()-1, "\0");
-            System.out.println("The SQL statement is: " + strSelect + "\n"); // Echo For debugging
+//            System.out.println("The SQL statement is: " + strSelect + "\n"); // Echo For debugging
 
             ResultSet rset = stmt.executeQuery(strSelect.toString());
             return MySQLServer.resultSetToArrayList(rset);
-            // Step 4: Process the ResultSet by scrolling the cursor forward via next().
-            //  For each row, retrieve the contents of the cells with getXxx(columnName).
-//            System.out.println("The records selected are:");
-//            int rowCount = 0;
-//            while(rset.next()) {   // Move the cursor to the next row, return false if no more row
-//                String username = rset.getString("username");
-//                String password = rset.getString("password");
-//                System.out.println(username + ", " + password);
-//                ++rowCount;
-//            }
-//            System.out.println("Total number of records = " + rowCount);
 
         } catch(SQLException ex) {
             ex.printStackTrace();
@@ -80,7 +63,22 @@ public class MySQLServer {
         }
     }
 
-    public static void insert(String table, Map<String, List<String>> kvsInsert){
+    public static void insertOne(String strInsert){
+        try (
+                // Step 1: Allocate a database 'Connection' object
+                Connection conn = DriverManager.getConnection(url, user, pw); // for MySQL only
+
+                // Step 2: Allocate a 'Statement' object in the Connection
+                Statement stmt = conn.createStatement();
+        ) {
+            // Step 3 & 4: Execute a SQL INSERT|DELETE statement via executeUpdate()
+            stmt.executeUpdate(strInsert);
+        } catch(SQLException ex) {
+            ex.printStackTrace();
+        }  // Step 5: Close conn and stmt - Done automatically by try-with-resources
+    }
+
+    public static void insertMany(String table, Map<String, List<String>> kvsInsert){
         try (
                 // Step 1: Allocate a database 'Connection' object
                 Connection conn = DriverManager.getConnection(url, user, pw); // for MySQL only
@@ -91,18 +89,18 @@ public class MySQLServer {
             // Step 3 & 4: Execute a SQL INSERT|DELETE statement via executeUpdate(),
             //   which returns an int indicating the number of rows affected.
 
-            //list all columns
-            ArrayList cols = new ArrayList(kvsInsert.keySet());
-            StringBuffer colsStr = new StringBuffer("(");
-            for (int i = 0; i < cols.size(); i++){
-                colsStr.append(cols.get(i) + ", ");
-            }
-            colsStr.replace(colsStr.length()-2, colsStr.length(), ")");
-            System.out.println("cols = " + colsStr);
+//            list all columns
+                ArrayList cols = new ArrayList(kvsInsert.keySet());
+                StringBuffer colsStr = new StringBuffer("(");
+                for (int i = 0; i < cols.size(); i++){
+                    colsStr.append(cols.get(i) + ", ");
+                }
+                colsStr.replace(colsStr.length()-2, colsStr.length(), ")");
+                System.out.println("cols = " + colsStr);
 
             // INSERT many record
-            for (int i=0; i < 2; i++){
-                //values to insert
+            for (int i=0; i < kvsInsert.size(); i++){
+//                values to insert
                 StringBuffer values = new StringBuffer("(");
                 for (int j = 0; j < cols.size(); j++){
                     values.append("'" + kvsInsert.get(cols.get(j)).get(i) + "', ");
@@ -144,14 +142,9 @@ public class MySQLServer {
 
     public static void main(String[] args) {
         Map<String, List<String>> kvsInsert = new HashMap<>();
-        kvsInsert.put("username", Arrays.asList("test1", "test2"));
-        kvsInsert.put("password", Arrays.asList("pass1", "pass2"));
-        MySQLServer.insert("authentification", kvsInsert);
-        MySQLServer.select("authentification", new HashMap<String, String>(){
-            {
-                put("username", "test1");
-                put("password", "pass1");
-            }
-        });
+        kvsInsert.put("username", Arrays.asList("damien", "thomas"));
+        kvsInsert.put("password", Arrays.asList("damien", "thomas"));
+        MySQLServer.insertMany("authentification", kvsInsert);
+        System.out.println(MySQLServer.select("select * from authentification where username='damien' and password='damien'").toString());
     }
 }

@@ -13,7 +13,6 @@ import sql.MySQLServer;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class LoginScreenController {
 
@@ -58,12 +57,10 @@ public class LoginScreenController {
         String username = inputUsername.getText();
         String password = inputPassword.getText();
 
-        ArrayList checkDB = MySQLServer.select("authentification", new HashMap<String, String>(){
-            {
-                put("username", username);
-                put("password", password);
-            }
-        });
+        ArrayList checkDB = MySQLServer.select(String.format(
+                "select * from authentification where username='%s' and password='%s'",
+                username, password
+        ));
 
         if (checkDB == null || checkDB.size() == 0){
             lblStatus.setText("Login Failed");

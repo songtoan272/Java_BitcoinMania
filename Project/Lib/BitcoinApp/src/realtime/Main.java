@@ -44,6 +44,7 @@ public class Main extends Application {
 
         // show the stage
         loginScreen.show();
+        primaryStage.show();
 //        LineChart<String, Double> chart = (LineChart<String, Double>) loader.getNamespace().get("chart");
 //        LineChart<String, Double> chart = (LineChart<String, Double>) ((AnchorPane)
 //                        ((SplitPane) root.getCenter()).getItems().get(1))
@@ -97,6 +98,6 @@ public class Main extends Application {
     @Override
     public void stop() throws Exception {
         super.stop();
-        scheduledExecutorService.shutdownNow();
+//        scheduledExecutorService.shutdownNow();
     }
 }

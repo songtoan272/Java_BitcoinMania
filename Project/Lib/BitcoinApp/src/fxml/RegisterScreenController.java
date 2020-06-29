@@ -7,6 +7,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import sql.MySQLServer;
+
+import java.util.ArrayList;
 
 public class RegisterScreenController {
 
@@ -26,13 +29,13 @@ public class RegisterScreenController {
     private Label lblStatus;
 
     @FXML
-    private PasswordField intputPassword;
+    private PasswordField inputPassword;
 
     @FXML
     private PasswordField inputCfPassword;
 
     @FXML
-    void closerRegisterWindow(ActionEvent event) {
+    void closeRegisterWindow(ActionEvent event) {
         registerWindow.close();
     }
 
@@ -48,7 +51,29 @@ public class RegisterScreenController {
 
     @FXML
     void register(ActionEvent event) {
+        String username = inputUsername.getText();
+        String password = inputPassword.getText();
+        String confirmPassword = inputCfPassword.getText();
 
+        if (!password.equals(confirmPassword)) {
+            lblStatus.setText("Password and confirm password do not match.");
+            return;
+        }
+
+        ArrayList checkDB = MySQLServer.select(String.format(
+                "select * from authentification where username='%s'",
+                username
+        ));
+
+        if (checkDB == null || checkDB.size() == 0){
+            MySQLServer.insertOne(String.format(
+                    "insert into authentification values ('%s', '%s')",
+                    username, password
+            ));
+            lblStatus.setText("Registered successfully! Use your ID and password to log into application.");
+        }else{
+            lblStatus.setText("Username already existed.");
+        }
     }
 
 }

@@ -14,7 +14,7 @@
 <?import javafx.scene.text.Text?>
 <?import javafx.stage.Stage?>
 
-<Stage fx:id="registerWindow" height="500.0" onCloseRequest="#closerRegisterWindow" title="Register" width="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxml.RegisterScreenController">
+<Stage fx:id="registerWindow" height="500.0" onCloseRequest="#closeRegisterWindow" title="Register" width="500.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxml.RegisterScreenController">
     <scene>
         <Scene>
          <AnchorPane>
@@ -39,7 +39,7 @@
                         </GridPane.margin>
                      </TextField>
                      <Text boundsType="VISUAL" strokeType="OUTSIDE" strokeWidth="0.0" text="PASSWORD" textOrigin="CENTER" wrappingWidth="79.7294921875" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
-                     <PasswordField fx:id="intputPassword" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <PasswordField fx:id="inputPassword" promptText="Password" GridPane.columnIndex="1" GridPane.rowIndex="1">
                         <GridPane.margin>
                            <Insets right="20.0" />
                         </GridPane.margin>
@@ -59,7 +59,7 @@
                            <Insets bottom="20.0" right="20.0" />
                         </GridPane.margin>
                      </ButtonBar>
-                     <Label fx:id="lblStatus" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
+                     <Label fx:id="lblStatus" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER" />
                   </children>
                </GridPane>
             </children>
