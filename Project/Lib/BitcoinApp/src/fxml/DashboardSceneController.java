@@ -1,5 +1,7 @@
 package fxml;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -7,6 +9,11 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.input.InputMethodEvent;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 public class DashboardSceneController {
 
@@ -29,7 +36,7 @@ public class DashboardSceneController {
     private MenuItem menuImportExcel;
 
     @FXML
-    private ChoiceBox<?> scaleOption;
+    private ChoiceBox<String> scaleOption;
 
     @FXML
     private ChoiceBox<String> currencyOption;
@@ -41,10 +48,16 @@ public class DashboardSceneController {
     private Slider lowThreshold;
 
     @FXML
+    private Label lowThresholdLabel;
+
+    @FXML
+    private Label topThresholdLabel;
+
+    @FXML
     private DatePicker startDate;
 
     @FXML
-    private ChoiceBox<?> smartBoundsOption;
+    private ChoiceBox<String> smartBoundsOption;
 
     @FXML
     private DatePicker endDate;
@@ -77,7 +90,80 @@ public class DashboardSceneController {
             System.out.println("Currency changed to " + newV);
         });
 
-        //Set up
+        //Set up scales options for chart
+
+        ObservableList<String> scales = FXCollections.observableArrayList(
+                "Scales",
+                "DAY",
+                "WEEK",
+                "MONTH",
+                "YEAR");
+        scaleOption.setItems(scales);
+        scaleOption.getSelectionModel().select(0);
+        scaleOption.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
+            System.out.println("Scale changed to " + newV);
+        });
+
+        //Set smartBounds
+
+        ObservableList<String> smartBounds = FXCollections.observableArrayList(
+                "Smart bounds",
+                "Last 24 hours",
+                "Last week",
+                "Last month",
+                "Last year");
+        smartBoundsOption.setItems(smartBounds);
+        smartBoundsOption.getSelectionModel().select(0);
+        smartBoundsOption.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
+            System.out.println("Currency changed to " + newV);
+        });
+
+        // set start and end date in fuunction of smart bounds
+
+        smartBoundsOption.valueProperty().addListener(new ChangeListener<String>() {
+
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+                switch(newValue) {
+                    case "Last 24 hours":
+                        startDate.setValue(LocalDate.now().minus(1, ChronoUnit.DAYS));
+                        endDate.setValue(LocalDate.now());
+                        break;
+                    case "Last week":
+                        startDate.setValue(LocalDate.now().minus(1, ChronoUnit.WEEKS));
+                        endDate.setValue(LocalDate.now());
+                        break;
+                    case "Last month":
+                        startDate.setValue(LocalDate.now().minus(1, ChronoUnit.MONTHS));
+                        endDate.setValue(LocalDate.now());
+                        break;
+                    case "Last year":
+                        startDate.setValue(LocalDate.now().minus(1, ChronoUnit.YEARS));
+                        endDate.setValue(LocalDate.now());
+                        break;
+                    default:
+                        System.out.print("Change bound");
+                }
+            }
+        });
+
+        //Set up thresholds value for alert + event on change to update label
+
+        lowThresholdLabel.textProperty().setValue("Low threshold : " + lowThreshold.getValue());
+        topThresholdLabel.textProperty().setValue("Top threshold : " + topThreshold.getValue());
+        lowThreshold.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                lowThresholdLabel.textProperty().setValue("Low threshold : " + newValue.intValue());
+            }
+        });
+        topThreshold.valueProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> observableValue, Number oldValue, Number newValue) {
+                topThresholdLabel.textProperty().setValue("Low threshold : " + newValue.intValue());
+            }
+        });
+
 
     }
 
@@ -102,27 +188,7 @@ public class DashboardSceneController {
     }
 
     @FXML
-    void updateCurrency(InputMethodEvent event) {
-        System.out.println("currency changed");
-    }
-
-    @FXML
     void updateEndDate(ActionEvent event) {
-
-    }
-
-    @FXML
-    void updateLowThreshold(InputMethodEvent event) {
-
-    }
-
-    @FXML
-    void updateScale(InputMethodEvent event) {
-
-    }
-
-    @FXML
-    void updateSmartBound(InputMethodEvent event) {
 
     }
 
@@ -131,9 +197,5 @@ public class DashboardSceneController {
 
     }
 
-    @FXML
-    void updateTopThreshold(InputMethodEvent event) {
-
-    }
 
 }
