@@ -17,6 +17,7 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
+<?import javafx.scene.control.TextField?>
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxml.dashboardSceneController">
    <top>
       <MenuBar fx:id="menuBar" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="20.0" prefWidth="1200.0" BorderPane.alignment="CENTER">
@@ -57,20 +58,20 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <ChoiceBox fx:id="scaleOption" onInputMethodTextChanged="#updateScale" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="BASELINE" />
-                        <ChoiceBox fx:id="currencyOption" onInputMethodTextChanged="#updateCurrency" prefWidth="150.0" GridPane.halignment="CENTER" GridPane.valignment="BASELINE" />
-                        <Label alignment="CENTER" contentDisplay="BOTTOM" text="Top threshold" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                        <ChoiceBox fx:id="scaleOption"  prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="BASELINE" />
+                        <ChoiceBox fx:id="currencyOption" prefWidth="150.0" GridPane.halignment="CENTER" GridPane.valignment="BASELINE" />
+                        <Label fx:id="topThresholdLabel" alignment="CENTER" contentDisplay="BOTTOM" text="Top threshold ${topThreshold.value}" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                            <graphic>
-                              <Slider fx:id="topThreshold" onInputMethodTextChanged="#updateTopThreshold" />
+                              <Slider fx:id="topThreshold" min="0" max="20000" />
                            </graphic>
                         </Label>
-                        <Label contentDisplay="BOTTOM" text="Low threshold" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                        <Label fx:id="lowThresholdLabel" contentDisplay="BOTTOM" text="Low threshold ${lowThreshold.value}" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                            <graphic>
-                              <Slider fx:id="lowThreshold" onInputMethodTextChanged="#updateLowThreshold" />
+                              <Slider fx:id="lowThreshold"  min="0" max="20000" />
                            </graphic>
                         </Label>
                         <DatePicker fx:id="startDate" onAction="#updateStartDate" onInputMethodTextChanged="#updateStartDate" promptText="Start Date" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                        <ChoiceBox fx:id="smartBoundsOption" onInputMethodTextChanged="#updateSmartBound" prefWidth="150.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="BASELINE" />
+                        <ChoiceBox fx:id="smartBoundsOption" prefWidth="150.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="BASELINE" />
                         <DatePicker fx:id="endDate" onAction="#updateEndDate" promptText="End Date" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                      </children>
                   </GridPane>
