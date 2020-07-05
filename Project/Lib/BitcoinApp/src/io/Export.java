@@ -2,9 +2,9 @@ package io;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-
+import io.PriceBTC
 public class Export {
-    public static void export(String fileType, List<Map<String, String>> data) {
+    public static void export(String fileType, ArrayList<PriceBTC> data) {
         switch(fileType) {
             case "CSV":
                 this.exportCSVFile(data);
@@ -12,7 +12,7 @@ public class Export {
 
         }
     }
-    private static void exportCSVFile(List<Map<String, String>> data) {
+    private static void exportCSVFile(ArrayList<PriceBTC> data) {
         try (PrintWriter writer = new PrintWriter(new File("export.csv"))) {
 
             StringBuilder sb = new StringBuilder();
@@ -39,7 +39,7 @@ public class Export {
             System.out.println(e.getMessage());
         }
     }
-    private static void exportSQLFile(List<Map<String, String>> data) {
+    private static void exportSQLFile(ArrayList<PriceBTC> data) {
         StringBuilder table = "table"
         try (PrintWriter writer = new PrintWriter(new File("export.sql"))) {
             StringBuilder sb = new StringBuilder();
