@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
@@ -11,6 +8,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -23,11 +21,15 @@
          <menus>
             <Menu mnemonicParsing="false" text="File">
                <items>
+                  <MenuItem fx:id="menuImportExcel" mnemonicParsing="false" onAction="#importEXCEL" text="Import EXCEL" />
+                  <Menu fx:id="menuExport" mnemonicParsing="false" text="Export">
+                     <items>
+                        <MenuItem fx:id="menuExportSQL" mnemonicParsing="false" onAction="#exportSQL" text="Export SQL" />
+                        <MenuItem fx:id="menuExportCSV" mnemonicParsing="false" onAction="#exportCSV" text="Export  CSV" />
+                        <MenuItem fx:id="menuExportPDF" mnemonicParsing="false" onAction="#exportPDF" text="Export  PDF" />
+                     </items>
+                  </Menu>
                   <MenuItem fx:id="menuClose" mnemonicParsing="false" text="Close" />
-                  <MenuItem fx:id="menuExportSQL" mnemonicParsing="false" onAction="#exportSQL" text="Export SQL" />
-                  <MenuItem fx:id="menuExportCSV" mnemonicParsing="false" onAction="#exportCSV" text="Export  CSV" />
-                  <MenuItem fx:id="menuExportPDF" mnemonicParsing="false" onAction="#exportPDF" text="Export  PDF" />
-                  <MenuItem fx:id="menuImportExcel" mnemonicParsing="false" onAction="#exportEXCEL" text="Import EXCEL" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Edit" />
@@ -59,35 +61,25 @@
                      <children>
                         <ChoiceBox fx:id="scaleOption" onInputMethodTextChanged="#updateScale" prefWidth="150.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="BASELINE" />
                         <ChoiceBox fx:id="currencyOption" onInputMethodTextChanged="#updateCurrency" prefWidth="150.0" GridPane.halignment="CENTER" GridPane.valignment="BASELINE" />
-                        <Label alignment="CENTER" contentDisplay="BOTTOM" text="Top threshold" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                        <ChoiceBox fx:id="smartBoundsOption" onInputMethodTextChanged="#updateSmartBound" prefWidth="150.0" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="BASELINE" />
+                        <Label alignment="CENTER" contentDisplay="BOTTOM" text="Top threshold" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                            <graphic>
-                              <Slider fx:id="topThreshold" onInputMethodTextChanged="#updateTopThreshold" />
+                              <Slider fx:id="topThreshold" />
                            </graphic>
                         </Label>
-                        <Label contentDisplay="BOTTOM" text="Low threshold" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                        <Label contentDisplay="BOTTOM" text="Low threshold" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                            <graphic>
-                              <Slider fx:id="lowThreshold" onInputMethodTextChanged="#updateLowThreshold" />
+                              <Slider fx:id="lowThreshold" />
                            </graphic>
                         </Label>
                         <DatePicker fx:id="startDate" onAction="#updateStartDate" onInputMethodTextChanged="#updateStartDate" promptText="Start Date" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="CENTER" />
-                        <ChoiceBox fx:id="smartBoundsOption" onInputMethodTextChanged="#updateSmartBound" prefWidth="150.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.rowSpan="2" GridPane.valignment="BASELINE" />
                         <DatePicker fx:id="endDate" onAction="#updateEndDate" promptText="End Date" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
+                        <ToggleButton fx:id="toggleCandle" mnemonicParsing="false" onAction="#switchGraph" text="Display Candles" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER" />
                      </children>
                   </GridPane>
                </children>
             </AnchorPane>
-          <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="634.0" prefWidth="1198.0" SplitPane.resizableWithParent="false">
-               <children>
-                  <LineChart fx:id="chart" layoutY="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="661.0" prefWidth="1198.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                    <xAxis>
-                      <CategoryAxis side="BOTTOM" />
-                    </xAxis>
-                    <yAxis>
-                      <NumberAxis side="LEFT" />
-                    </yAxis>
-                  </LineChart>
-               </children>
-            </AnchorPane>
+          <AnchorPane fx:id="graphPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="634.0" prefWidth="1198.0" SplitPane.resizableWithParent="false" />
         </items>
       </SplitPane>
    </center>

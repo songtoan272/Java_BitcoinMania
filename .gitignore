@@ -3,4 +3,6 @@ Project/Lib/BitcoinApp/BitcoinApp.iml
 .idea/
 workspace.xml
 /Project/Lib/BitcoinApp/out/
-
+/Project/Dataset/*
+/Project/Lib/Dependencies/binance-exchange-api/
+/Projet/Lib/BitcoinApp/src/fxml/LineChartWithHover.java
