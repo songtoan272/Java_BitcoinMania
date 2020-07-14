@@ -10,7 +10,7 @@ import java.io.IOException;
 
 public class LoginScreen extends BorderPane
 {
-    public void start(Stage stage) throws IOException
+    public static void create(Stage stage) throws IOException
     {
         // Create the FXMLLoader
         FXMLLoader loader = new FXMLLoader();

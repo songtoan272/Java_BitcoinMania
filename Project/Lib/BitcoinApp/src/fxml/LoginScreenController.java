@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import sql.MySQLServer;
 
 import java.io.FileInputStream;
@@ -83,10 +84,14 @@ public class LoginScreenController {
             // setup scene
             Scene scene = new Scene(root);
             liveDashboard.setScene(scene);
+            liveDashboard.setOnCloseRequest(e -> {liveDashboard.close(); });
 
             // show the stage
             bQuit.fire();
             liveDashboard.show();
+            liveDashboard.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, windowEvent -> {
+                liveDashboard.close();
+            });
         }
     }
 
