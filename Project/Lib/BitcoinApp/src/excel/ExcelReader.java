@@ -17,7 +17,6 @@ public class ExcelReader {
     {
         try
         {
-//            String filePath = "/home/songtoan272/Documents/Cours/Semestre_5/Java_Bases/BitcoinMania/Project/Dataset/Fichier-Excel.xlsx";
             File file = new File(filePath);   //creating a new file instance
             FileInputStream fis = new FileInputStream(file);   //obtaining bytes from the file
 
@@ -48,5 +47,10 @@ public class ExcelReader {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static void main(String[] args) {
+        String filePath = "/home/songtoan272/Documents/Cours/Semestre_5/Java_Bases/BitcoinMania/Project/Dataset/Fichier-Excel.xlsx";
+        read(filePath);
     }
 }

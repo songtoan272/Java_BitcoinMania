@@ -70,21 +70,15 @@ public class LoginScreenController {
 
             //swtich stage to the live dashboard and close the login screen
             Stage liveDashboard = new Stage();
-            liveDashboard.setTitle("JavaFX Realtime Chart Demo");
-
-            // Create the FXMLLoader
             FXMLLoader loader = new FXMLLoader();
-            // Path to the FXML File
             String fxmlDocPath = "./src/fxml/dashboardScene.fxml";
             FileInputStream fxmlStream = new FileInputStream(fxmlDocPath);
-
             // Create the Pane and all Details
             BorderPane root = (BorderPane) loader.load(fxmlStream);
-
             // setup scene
             Scene scene = new Scene(root);
             liveDashboard.setScene(scene);
-            liveDashboard.setOnCloseRequest(e -> {liveDashboard.close(); });
+//            liveDashboard.setOnCloseRequest(e -> {liveDashboard.close(); });
 
             // show the stage
             bQuit.fire();
