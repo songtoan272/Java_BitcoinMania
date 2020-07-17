@@ -1,15 +1,12 @@
-package fxml;
+package fxml.login;
 
+import io.sql.MySQLServer;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import sql.MySQLServer;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -69,23 +66,14 @@ public class LoginScreenController {
             lblStatus.setText("Login Successful");
 
             //swtich stage to the live dashboard and close the login screen
-            Stage liveDashboard = new Stage();
             FXMLLoader loader = new FXMLLoader();
-            String fxmlDocPath = "./src/fxml/dashboardScene.fxml";
+            String fxmlDocPath = "./src/fxml/dashboard/dashboardScene.fxml";
             FileInputStream fxmlStream = new FileInputStream(fxmlDocPath);
-            // Create the Pane and all Details
-            BorderPane root = (BorderPane) loader.load(fxmlStream);
-            // setup scene
-            Scene scene = new Scene(root);
-            liveDashboard.setScene(scene);
-//            liveDashboard.setOnCloseRequest(e -> {liveDashboard.close(); });
+            Stage dashBoardWindow = loader.load(fxmlStream);
 
             // show the stage
             bQuit.fire();
-            liveDashboard.show();
-            liveDashboard.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, windowEvent -> {
-                liveDashboard.close();
-            });
+            dashBoardWindow.show();
         }
     }
 
@@ -102,7 +90,7 @@ public class LoginScreenController {
         // Create the FXMLLoader
         FXMLLoader loader = new FXMLLoader();
         // Path to the FXML File
-        String fxmlDocPath = "./src/fxml/registerScreen.fxml";
+        String fxmlDocPath = "./src/fxml/register/registerScreen.fxml";
         FileInputStream fxmlStream = new FileInputStream(fxmlDocPath);
 
         // Create the Pane and all Details

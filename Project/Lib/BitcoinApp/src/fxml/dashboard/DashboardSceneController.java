@@ -1,17 +1,37 @@
-package fxml;
+package fxml.dashboard;
 
-import excel.LineChartExcel;
-import historical.LineChartHistorical;
+import fxml.dashboard.chart.LineChartExcel;
+import fxml.dashboard.chart.LineChartHistorical;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.Chart;
 import javafx.scene.control.*;
-import javafx.scene.input.InputMethodEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import realtime.LineChartRT;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import javafx.util.StringConverter;
+import fxml.dashboard.chart.LineChartRT;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 public class DashboardSceneController {
+
+    @FXML
+    private Stage dashBoardWindow;
+
+    @FXML
+    private TabPane tabPane;
 
     @FXML
     private MenuItem menuImportExcel;
@@ -35,13 +55,13 @@ public class DashboardSceneController {
     private Tab liveTab;
 
     @FXML
-    private ChoiceBox<?> currencyOptionLive;
+    private ChoiceBox<String> currencyOptionLive;
 
     @FXML
-    private ChoiceBox<?> scaleOptionLive;
+    private ChoiceBox<String> scaleOptionLive;
 
     @FXML
-    private ChoiceBox<?> smartBoundsLive;
+    private ChoiceBox<String> smartBoundsLive;
 
     @FXML
     private TextField topThresholdLive;
@@ -62,13 +82,13 @@ public class DashboardSceneController {
     private Tab historyTab;
 
     @FXML
-    private ChoiceBox<?> currencyOptionHis;
+    private ChoiceBox<String> currencyOptionHis;
 
     @FXML
-    private ChoiceBox<?> scaleOptionHis;
+    private ChoiceBox<String> scaleOptionHis;
 
     @FXML
-    private ChoiceBox<?> smartBoundsHis;
+    private ChoiceBox<String> smartBoundsHis;
 
     @FXML
     private DatePicker startDateHis;
@@ -83,13 +103,16 @@ public class DashboardSceneController {
     private Tab excelTab;
 
     @FXML
-    private ChoiceBox<?> currencyOptionExcel;
+    private Button importButton;
 
     @FXML
-    private ChoiceBox<?> scaleOptionExcel;
+    private ChoiceBox<String> currencyOptionExcel;
 
     @FXML
-    private ChoiceBox<?> smartBoundsExcel;
+    private ChoiceBox<String> scaleOptionExcel;
+
+    @FXML
+    private ChoiceBox<String> smartBoundsExcel;
 
     @FXML
     private TextField topThresholdExcel;
@@ -115,45 +138,40 @@ public class DashboardSceneController {
     @FXML
     private LineChartHistorical chartHistorical;
 
+    private final StringConverter<LocalDate> converter = new StringConverter<LocalDate>() {
+        final DateTimeFormatter dateFormatter =
+                DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        @Override
+        public String toString(LocalDate date) {
+            if (date != null) {
+                return dateFormatter.format(date);
+            } else {
+                return "";
+            }
+        }
+        @Override
+        public LocalDate fromString(String string) {
+            if (string != null && !string.isEmpty()) {
+                return LocalDate.parse(string, dateFormatter);
+            } else {
+                return null;
+            }
+        }
+    };
+
     @FXML
     private void initialize(){
+        //set up graphs on 3 tabs
         chartRT = new LineChartRT();
         chartFromExcel = new LineChartExcel();
         chartHistorical = new LineChartHistorical();
 
-        graphPaneLive.getChildren().add(chartRT);
-        graphPaneHistory.getChildren().add(chartHistorical);
-        graphPaneExcel.getChildren().add(chartFromExcel);
 
-        setWH(graphPaneLive, chartRT);
-        setWH(graphPaneHistory, chartHistorical);
-        setWH(graphPaneExcel, chartFromExcel);
-//        chartRT.setVisible(true); chartRT.setCursor(Cursor.CROSSHAIR);
-//        chartRT.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, windowEvent -> {
-//            chartRT.stopUpdate();
-//            windowEvent.consume();
-//            Platform.exit();
-//        });
-//        chartRT.updateData();
-//        chartRT.on
-//        LineChartRT l = (LineChartRT) graphPane.getChildren().get(0);
+        setupGraph(graphPaneLive, chartRT);
+        setupGraph(graphPaneHistory, chartHistorical);
+        setupGraph(graphPaneExcel, chartFromExcel);
 
-
-
-
-        //Set up choicebox currencyOption
-//        ObservableList<String> curriencies = FXCollections.observableArrayList(
-//                "Currency",
-//                "USD",
-//                "EUR",
-//                "GBP");
-//        currencyOption.setItems(curriencies);
-//        currencyOption.getSelectionModel().select(0);
-//        currencyOption.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
-//            System.out.println("Currency changed to " + newV);
-//        });
-
-        //Set up
 
     }
 
@@ -165,6 +183,310 @@ public class DashboardSceneController {
         chart.setMaxHeight(pane.getMaxHeight());
         chart.setMinHeight(pane.getMinHeight());
     }
+
+    private void setupGraph(Pane pane, Chart chart){
+        pane.getChildren().add(chart);
+        setWH(pane, chart);
+        if(chart instanceof LineChartRT){
+            setupOptionsLive();
+        }
+        if(chart instanceof LineChartHistorical){
+            setupOptionsHistorical();
+        }
+        if(chart instanceof LineChartExcel){
+            setupOptionsExcel();
+        }
+    }
+
+    private void setupOptionsLive() {
+        ObservableList<String> currenciesLive = FXCollections.observableArrayList(
+                "USD",
+                "EUR",
+                "GBP");
+        currencyOptionLive.setItems(currenciesLive);
+        currencyOptionLive.getSelectionModel().select(0);
+        currencyOptionLive.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
+            chartRT.setCurrency(newV);
+        });
+        currencyOptionLive.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                chartRT.setCurrency(currencyOptionLive.getValue());
+            }
+        });
+
+        ObservableList<String> scales = FXCollections.observableArrayList("Scales", "MIN");
+        scaleOptionLive.setItems(scales);
+        scaleOptionLive.getSelectionModel().select(1);
+
+        topThresholdLive.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (!newValue.matches("\\d{0,7}([.]\\d{0,4})?")) {
+                    topThresholdLive.setText(oldValue);
+                }
+            }
+        });
+        topThresholdLive.setOnAction(new EventHandler(){
+            @Override
+            public void handle(Event event) {
+                double newV = Double.parseDouble(topThresholdLive.getText());
+                if (newV < chartRT.getLowerBound() && chartRT.getLowerBound() > 0.0){
+                    topThresholdLive.setText("" + chartRT.getLowerBound());
+                }
+                chartRT.setUpperBound(Double.parseDouble(topThresholdLive.getText()));
+                System.out.println("topThreshold="+chartRT.getUpperBound());
+            }
+        });
+
+        lowThresholdLive.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (!newValue.matches("\\d{0,7}([.]\\d{0,4})?")) {
+                    lowThresholdLive.setText(oldValue);
+                }
+            }
+        });
+        lowThresholdLive.setOnAction(new EventHandler(){
+            @Override
+            public void handle(Event event) {
+                double newV = Double.parseDouble(lowThresholdLive.getText());
+                if (newV > chartRT.getUpperBound() && chartRT.getUpperBound() > 0.0){
+                    lowThresholdLive.setText("" + chartRT.getUpperBound());
+                }
+                chartRT.setLowerBound(Double.parseDouble(lowThresholdLive.getText()));
+                System.out.println("lowThreshold="+chartRT.getLowerBound());
+            }
+        });
+
+        startDateLive.setValue(LocalDate.now());
+        endDateLive.setValue(LocalDate.now());
+    }
+
+    private void setupOptionsExcel() {
+        ObservableList<String> currencies = FXCollections.observableArrayList("USD");
+        currencyOptionExcel.setItems(currencies);
+        currencyOptionExcel.getSelectionModel().select(0);
+
+        ObservableList<String> scales = FXCollections.observableArrayList(
+            "Scales",
+                "5 MINS",
+                "15 MINS",
+                "HOUR",
+                "12 HOURS",
+                "DAY",
+                "3 DAYS",
+                "WEEK",
+                "15 DAYS",
+                "MONTH");
+        scaleOptionExcel.setItems(scales);
+        scaleOptionExcel.getSelectionModel().select(0);
+        scaleOptionExcel.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
+            if (newV.equals("Scales")){
+                scaleOptionExcel.getSelectionModel().select(oldV);
+            }
+            System.out.println("Scale changed to " + scaleOptionExcel.getValue());
+        });
+        scaleOptionExcel.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                chartFromExcel.setScale(scaleOptionExcel.getValue());
+            }
+        });
+
+//        ObservableList<String> smartBounds = FXCollections.observableArrayList(
+//                "Smart bounds",
+//                "Last 24 hours",
+//                "Last 3 days",
+//                "Last week",
+//                "Last month",
+//                "Last 6 months",
+//                "Last year");
+//        smartBoundsExcel.setItems(smartBounds);
+//        smartBoundsExcel.getSelectionModel().select(0);
+//        smartBoundsExcel.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
+//            if (newV.equals("Smart bounds")){
+//                smartBoundsExcel.getSelectionModel().select(oldV);
+//            }System.out.println("Smart bounds changed to " + smartBoundsExcel.getValue());
+//        });
+//
+//        // set start in function of smart bounds
+//        smartBoundsExcel.valueProperty().addListener(new ChangeListener<String>() {
+//            @Override
+//            public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+//                switch (newValue) {
+//                    case "Last 24 hours" -> startDateExcel.setValue(LocalDate.now().minus(1, ChronoUnit.DAYS));
+//                    case "Last 3 days" -> startDateExcel.setValue(LocalDate.now().minus(3, ChronoUnit.DAYS));
+//                    case "Last week" -> startDateExcel.setValue(LocalDate.now().minus(1, ChronoUnit.WEEKS));
+//                    case "Last month" -> startDateExcel.setValue(LocalDate.now().minus(1, ChronoUnit.MONTHS));
+//                    case "Last 6 months" -> startDateExcel.setValue(LocalDate.now().minus(6, ChronoUnit.MONTHS));
+//                    case "Last year" -> startDateExcel.setValue(LocalDate.now().minus(1, ChronoUnit.YEARS));
+//                    default -> System.out.print("Change bound");
+//                }
+//                endDateExcel.setValue(LocalDate.now());
+//            }
+//        });
+
+        topThresholdExcel.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (!newValue.matches("\\d{0,7}([.]\\d{0,4})?")) {
+                    topThresholdExcel.setText(oldValue);
+                }
+            }
+        });
+
+        topThresholdExcel.setOnAction(new EventHandler(){
+            @Override
+            public void handle(Event event) {
+                double newV = Double.parseDouble(topThresholdExcel.getText());
+                if (newV < chartFromExcel.getLowerBound()){
+                    topThresholdExcel.setText("" + chartFromExcel.getLowerBound());
+                }
+                chartFromExcel.setUpperBound(Double.parseDouble(topThresholdExcel.getText()));
+                System.out.println("topThreshold="+chartFromExcel.getLowerBound());
+            }
+        });
+
+        lowThresholdExcel.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (!newValue.matches("\\d{0,7}([.]\\d{0,4})?")) {
+                    lowThresholdExcel.setText(oldValue);
+                }
+            }
+        });
+
+        lowThresholdExcel.setOnAction(new EventHandler(){
+            @Override
+            public void handle(Event event) {
+                double newV = Double.parseDouble(lowThresholdExcel.getText());
+                if (newV > chartFromExcel.getUpperBound()){
+                    lowThresholdExcel.setText("" + chartFromExcel.getUpperBound());
+                }
+                chartFromExcel.setLowerBound(Double.parseDouble(lowThresholdExcel.getText()));
+                System.out.println("lowThreshold="+chartFromExcel.getLowerBound());
+            }
+        });
+
+        startDateExcel.setConverter(converter);
+        startDateExcel.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                chartFromExcel.setFromTime(startDateExcel.getValue().atStartOfDay());
+                System.out.println("startDate="+startDateExcel.getValue().toString());
+            }
+        });
+
+        endDateExcel.setConverter(converter);
+        endDateExcel.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                chartFromExcel.setToTime(endDateExcel.getValue().atStartOfDay());
+                System.out.println("endDate="+endDateExcel.getValue().toString());
+            }
+        });
+    }
+
+    private void setupOptionsHistorical() {
+        ObservableList<String> currencies = FXCollections.observableArrayList("USD");
+        currencyOptionHis.setItems(currencies);
+        currencyOptionHis.getSelectionModel().select(0);
+
+        ObservableList<String> scales = FXCollections.observableArrayList(
+                "Scales",
+                "DAY",
+                "3 DAYS",
+                "WEEK",
+                "15 DAYS",
+                "MONTH");
+        scaleOptionHis.setItems(scales);
+        scaleOptionHis.getSelectionModel().select(1);
+        scaleOptionHis.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
+            if (newV.equals("Scales")){
+                scaleOptionHis.getSelectionModel().select(oldV);
+            }
+            if (!scaleOptionHis.getValue().equals(chartHistorical.getScale())){
+                chartHistorical.setScale(scaleOptionHis.getValue());
+            }
+            System.out.println("Scale changed to " + scaleOptionHis.getValue());
+        });
+
+        ObservableList<String> smartBounds = FXCollections.observableArrayList(
+                "Smart bounds",
+                "Last month",
+                "Last 6 months",
+                "Last year");
+        smartBoundsHis.setItems(smartBounds);
+        smartBoundsHis.getSelectionModel().select(1);
+        smartBoundsHis.getSelectionModel().selectedItemProperty().addListener((v, oldV, newV) -> {
+            if (newV.equals("Smart bounds")){
+                smartBoundsHis.getSelectionModel().select(oldV);
+            }System.out.println("Smart bounds changed to " + smartBoundsHis.getValue());
+        });
+
+        // set start and end date in function of smart bounds
+        smartBoundsHis.valueProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String oldValue, String newValue) {
+                switch (newValue) {
+                    case "Last month" -> startDateHis.setValue(LocalDate.now().minus(1, ChronoUnit.MONTHS));
+                    case "Last 6 months" -> startDateHis.setValue(LocalDate.now().minus(6, ChronoUnit.MONTHS));
+                    case "Last year" -> startDateHis.setValue(LocalDate.now().minus(1, ChronoUnit.YEARS));
+                    default -> System.out.println("Change bound");
+                }
+                endDateHis.setValue(LocalDate.now().minusDays(1));
+                chartHistorical.setDate(startDateHis.getValue(), endDateHis.getValue());
+            }
+        });
+
+        startDateHis.setConverter(converter);
+        startDateHis.setValue(LocalDate.now().minusDays(31));
+        startDateHis.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LocalDate dNew = startDateHis.getValue();
+                if (dNew.isAfter(chartHistorical.getEndDate())){
+                    dNew = chartHistorical.getEndDate();
+                    startDateHis.setValue(dNew);
+                }
+                if (dNew.isBefore(LocalDate.of(2010, 7, 18))){
+                    dNew = LocalDate.of(2010, 7, 18);
+                    startDateHis.setValue(dNew);
+                }
+                if (dNew.isAfter(LocalDate.now())){
+                    dNew = LocalDate.now();
+                    startDateHis.setValue(dNew);
+                }
+                chartHistorical.setStartDate(startDateHis.getValue());
+                System.out.println("startDate="+startDateHis.getValue().toString());
+            }
+        });
+
+        endDateHis.setConverter(converter);
+        endDateHis.setValue(LocalDate.now().minusDays(1));
+        endDateHis.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                LocalDate dNew = endDateHis.getValue();
+                if (dNew.isBefore(chartHistorical.getStartDate())){
+                    dNew = LocalDate.from(chartHistorical.getStartDate());
+                    endDateHis.setValue(dNew);
+                }
+                if (dNew.isBefore(LocalDate.of(2010, 7, 18))){
+                    dNew = LocalDate.of(2010, 7, 18);
+                    endDateHis.setValue(dNew);
+                }
+                if (dNew.isAfter(LocalDate.now())){
+                    dNew = LocalDate.now();
+                    endDateHis.setValue(dNew);
+                }
+                chartHistorical.setEndDate(endDateHis.getValue());
+                System.out.println("endDate="+endDateHis.getValue().toString());
+            }
+        });
+    }
+
 
     @FXML
     void exportCSV(ActionEvent event) {
@@ -182,32 +504,35 @@ public class DashboardSceneController {
     }
 
     @FXML
-    void importEXCEL(ActionEvent event) {
+    void importExcel(ActionEvent event) {
+        try{
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select Excel Data File");
+            fileChooser.setInitialDirectory(new File(new File(".")
+                    .getCanonicalFile()
+                    .getParentFile()
+                    .getParentFile()
+                    .getAbsolutePath() + "/Dataset"));
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Excel", "*.xls", "*.xlsx"));
+            File file = fileChooser.showOpenDialog(new Stage());
+            if (file != null){
+                chartFromExcel.changeSourceFile(file);
+                if (!tabPane.getSelectionModel().getSelectedItem().equals(excelTab)){
+                    tabPane.getSelectionModel().select(excelTab);
+                }
+                scaleOptionExcel.getSelectionModel().select(1);
+                startDateExcel.setValue(chartFromExcel.getMinDate());
+                endDateExcel.setValue(chartFromExcel.getMaxDate());
+            }
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
-    void updateCurrency(InputMethodEvent event) {
-
-    }
-
-    @FXML
-    void updateEndDate(ActionEvent event) {
-
-    }
-
-    @FXML
-    void updateScale(InputMethodEvent event) {
-
-    }
-
-    @FXML
-    void updateSmartBound(InputMethodEvent event) {
-
-    }
-
-    @FXML
-    void updateStartDate(InputMethodEvent event) {
+    void closeApp(ActionEvent event) {
 
     }
 

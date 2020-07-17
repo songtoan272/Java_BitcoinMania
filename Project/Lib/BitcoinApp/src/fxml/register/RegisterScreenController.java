@@ -1,4 +1,4 @@
-package fxml;
+package fxml.register;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -7,7 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import sql.MySQLServer;
+import io.sql.MySQLServer;
 
 import java.util.ArrayList;
 
