@@ -1,6 +1,7 @@
 package fxml.dashboard.chart;
 
 import fxml.util.MyTooltip;
+import io.excel.ExcelReader;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
@@ -46,6 +47,7 @@ public class LineChartExcel extends LineChart<String, Number> {
 
         this.setTitle("Excel Data");
         this.setAnimated(true);
+        this.setAlternativeColumnFillVisible(false);
 
         this.upperBound = 0.0;
         this.lowerBound = 0.0;
@@ -87,31 +89,30 @@ public class LineChartExcel extends LineChart<String, Number> {
 
     public void changeSourceFile(File file){
         System.out.println("Source Excel changed to " + file.getAbsolutePath());
-//        this.allPrices = ExcelReader.read(file);
-//        if (this.allPrices == null) return;
-//        if (this.allPrices.size()==0) return;
-//        this.scale = "5 MINS";
-//        this.fromTime = this.allPrices.get(0).getDatetime();
-//        this.toTime = this.allPrices.get(allPrices.size()-1).getDatetime();
-//        this.feedData(this.allPrices);
+        this.allPrices = ExcelReader.read(file);
+        if (this.allPrices == null) return;
+        if (this.allPrices.size()==0) return;
+        this.scale = "5 MINS";
+        this.fromTime = this.allPrices.get(0).getDatetime();
+        this.toTime = this.allPrices.get(allPrices.size()-1).getDatetime();
+        this.feedData(this.allPrices);
     }
 
     private void updateThreshold(boolean isUpper){
-        if ((isUpper ? this.upperBound:this.lowerBound) == 0.0){
-            return;
-        }
         Series<String, Number> series = this.getData().get(isUpper ?1:2);
-        Series<String, Number> dataSeries = this.getData().get(0);
         series.getData().clear();
-        for (Data<String, Number> d: dataSeries.getData()){
+        int count = 0;
+        for (Data<String, Number> d: this.getData().get(0).getData()){
             Data<String, Number> point = new Data<>(d.getXValue(),
                     isUpper ? this.upperBound:this.lowerBound);
             series.getData().add(point);
             point.getNode().setVisible(false);
+            if (isUpper && (double) d.getYValue() >= this.upperBound) count++;
+            if (!isUpper && (double) d.getYValue() <= this.lowerBound) count++;
         }
         Tooltip.install(series.getNode(), new MyTooltip(
-                isUpper? "Upper Threshold: " + this.upperBound:
-                        "Lower Threshold: " + this.lowerBound
+                isUpper? "Cross Upper Threshold: " + count + " times.":
+                        "Cross Lower Threshold: " + count + " times."
         ));
     }
 

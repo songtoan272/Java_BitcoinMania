@@ -29,7 +29,7 @@ public class FetchPriceURL {
             String inputLine = in.readLine();
             JSONObject o = (JSONObject) parser.parse(inputLine);
             JSONObject bpi = ((JSONObject) o.get("bpi"));
-            LocalDate lastDate = LocalDate.now().minusDays(1);
+            LocalDate lastDate = LocalDate.now().minusDays(2);
             double price = ((Double) bpi
                     .get(lastDate.format(DateTimeFormatter.ISO_LOCAL_DATE)));
             in.close();
@@ -73,7 +73,7 @@ public class FetchPriceURL {
             e.printStackTrace();
             return null;
         }
-    }
+    }x`
 
     private static List<PriceBTC> fetchHistoricalPrice(String url){
         LinkedList<PriceBTC> prices = new LinkedList<>();
@@ -98,7 +98,7 @@ public class FetchPriceURL {
                             .get(d.format(DateTimeFormatter.ISO_LOCAL_DATE))).doubleValue();
                 }
 //                System.out.println("date="+formatter.format(d) + "price=" + price);
-                prices.add(new PriceBTC(d.atStartOfDay(), price));
+                if (price != null) prices.add(new PriceBTC(d.atStartOfDay(), price));
             }
             in.close();
             Collections.sort(prices);

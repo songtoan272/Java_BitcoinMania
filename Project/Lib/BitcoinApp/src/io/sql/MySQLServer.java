@@ -61,7 +61,6 @@ public class MySQLServer {
 //            System.out.println("The SQL statement is: " + strSelect + "\n"); // Echo For debugging
 
             ResultSet rset = stmt.executeQuery(strSelect);
-            conn.close();
             return MySQLServer.resultSetToArrayList(rset);
 
         } catch(SQLException ex) {
@@ -80,7 +79,6 @@ public class MySQLServer {
         ) {
             // Step 3 & 4: Execute a SQL INSERT|DELETE statement via executeUpdate()
             stmt.executeUpdate(strInsert);
-            conn.close();
         } catch(SQLException ex) {
             ex.printStackTrace();
         }  // Step 5: Close conn and stmt - Done automatically by try-with-resources
@@ -121,7 +119,6 @@ public class MySQLServer {
                 int countInserted = stmt.executeUpdate(sqlInsert);
                 System.out.println(countInserted + " records inserted.\n");
             }
-            conn.close();
         } catch(SQLException ex) {
             ex.printStackTrace();
         }  // Step 5: Close conn and stmt - Done automatically by try-with-resources
@@ -144,7 +141,6 @@ public class MySQLServer {
             String sqlDelete = "delete from books where id >= 3000 and id < 4000";
             System.out.println("The SQL statement is: " + sqlDelete + "\n");  // Echo for debugging
             int countDeleted = stmt.executeUpdate(sqlDelete);
-            conn.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }  // Step 5: Close conn and stmt - Done automatically by try-with-resources
