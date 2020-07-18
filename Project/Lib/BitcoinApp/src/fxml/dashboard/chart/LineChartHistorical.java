@@ -18,6 +18,9 @@ public class LineChartHistorical extends LineChart<String, Number> {
     private String scale;
     private LocalDate startDate;
     private LocalDate endDate;
+    private double lowerBound;
+    private double upperBound;
+    private XYChart.Series<String, Number> dataSeries;
 
     public LineChartHistorical() {
         super(new CategoryAxis(), new NumberAxis());
@@ -42,12 +45,20 @@ public class LineChartHistorical extends LineChart<String, Number> {
 
         this.setTitle("Historical Data");
         this.setAnimated(true);
+        this.setAlternativeColumnFillVisible(true);
 
-        this.scale = "DAY";
-        this.endDate = LocalDate.now();
-        this.startDate = endDate.minusDays(31);
-        this.getData().add(new Series<String, Number>());
-        this.getData().get(0).setName("Price in USD");
+        upperBound = 0.0;
+        lowerBound = 0.0;
+        scale = "DAY";
+        endDate = LocalDate.now();
+        startDate = endDate.minusDays(31);
+        dataSeries = new XYChart.Series<>();
+        dataSeries.setName("Price in USD");
+        Series<String, Number> lowerThresholdSeries = new Series<>();
+        lowerThresholdSeries.setName("LowerBound");
+        Series<String, Number> upperThresholdSeries = new Series<>();
+        upperThresholdSeries.setName("UpperBound");
+        this.getData().addAll(this.dataSeries, upperThresholdSeries, lowerThresholdSeries);
         this.feedData(FetchPriceURL.fetchHistoricalPrice());
     }
 
@@ -75,6 +86,24 @@ public class LineChartHistorical extends LineChart<String, Number> {
         this.feedData(prices);
     }
 
+    private void updateThreshold(boolean isUpper){
+        Series<String, Number> series = this.getData().get(isUpper ?1:2);
+        series.getData().clear();
+        int count = 0;
+        for (Data<String, Number> d: dataSeries.getData()){
+            Data<String, Number> point = new Data<>(d.getXValue(),
+                    isUpper ? this.upperBound:this.lowerBound);
+            series.getData().add(point);
+            point.getNode().setVisible(false);
+            if (isUpper && (double) d.getYValue() >= this.upperBound) count++;
+            if (!isUpper && (double) d.getYValue() <= this.lowerBound) count++;
+        }
+        Tooltip.install(series.getNode(), new MyTooltip(
+                isUpper? "Cross Upper Threshold: " + count + " times.":
+                        "Cross Lower Threshold: " + count + " times."
+        ));
+    }
+
     public String getScale() {
         return scale;
     }
@@ -95,6 +124,10 @@ public class LineChartHistorical extends LineChart<String, Number> {
         updateData();
     }
 
+    public double getLowerBound() {
+        return this.lowerBound;
+    }
+
     public LocalDate getEndDate() {
         return endDate;
     }
@@ -110,5 +143,24 @@ public class LineChartHistorical extends LineChart<String, Number> {
         this.startDate = startDate;
         this.endDate = endDate;
         this.updateData();
+    }
+
+    public double getUpperBound() {
+        return this.upperBound;
+    }
+
+
+    public void setLowerBound(double lowerBound) {
+        if (this.lowerBound == lowerBound){
+            return;
+        }
+        this.lowerBound = lowerBound;
+        this.updateThreshold(false);
+    }
+
+    public void setUpperBound(double upperBound) {
+        if (this.upperBound == upperBound) return;
+        this.upperBound = upperBound;
+        this.updateThreshold(true);
     }
 }

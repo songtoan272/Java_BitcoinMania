@@ -78,6 +78,7 @@ public class LineChartRT extends LineChart<String, Number> {
         this.setTitle("Bitcoin Price LIVE");
         this.setAnimated(true); // disable animations
         this.setLegendVisible(true);
+        this.setAlternativeColumnFillVisible(true);
         this.updateData();
     }
 

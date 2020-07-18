@@ -70,9 +70,9 @@ public class LoginScreenController {
             String fxmlDocPath = "./src/fxml/dashboard/dashboardScene.fxml";
             FileInputStream fxmlStream = new FileInputStream(fxmlDocPath);
             Stage dashBoardWindow = loader.load(fxmlStream);
+            bQuit.fire();
 
             // show the stage
-            bQuit.fire();
             dashBoardWindow.show();
         }
     }
