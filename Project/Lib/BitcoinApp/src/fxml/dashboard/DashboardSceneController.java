@@ -539,7 +539,7 @@ public class DashboardSceneController {
                     .getAbsolutePath() + "/Dataset"));
             fileChooser.setInitialFileName("export" + LocalDate.now().toString() + ".csv");
             fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("csv", "*.csv"));
+                    new FileChooser.ExtensionFilter("CSV", "*.csv"));
             File file = fileChooser.showSaveDialog(dashBoardWindow);
             if (file != null) {
                 assert selectedChart != null;
@@ -552,21 +552,29 @@ public class DashboardSceneController {
 
     @FXML
     void exportPDF(ActionEvent event) {
-        try{
+        try {
+            int tabID = tabPane.getSelectionModel().getSelectedIndex();
+            Export selectedChart = switch (tabID) {
+                case 0 -> chartRT;
+                case 1 -> chartHistorical;
+                case 2 -> chartFromExcel;
+                default -> null;
+            };
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Select Excel Data File");
+            fileChooser.setTitle("Choose path to save CSV file");
             fileChooser.setInitialDirectory(new File(new File(".")
                     .getCanonicalFile()
                     .getParentFile()
                     .getParentFile()
                     .getAbsolutePath() + "/Dataset"));
+            fileChooser.setInitialFileName("export" + LocalDate.now().toString() + ".pdf");
             fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("Excel", "*.xls", "*.xlsx"));
+                    new FileChooser.ExtensionFilter("PDF", "*.pdf"));
             File file = fileChooser.showSaveDialog(dashBoardWindow);
-            if (file != null){
-                //TODO: export PDF File
+            if (file != null) {
+                assert selectedChart != null;
+                selectedChart.exportPDFFile(file);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -591,21 +599,12 @@ public class DashboardSceneController {
                     .getAbsolutePath() + "/Dataset"));
             fileChooser.setInitialFileName("export" + LocalDate.now().toString() + ".sql");
             fileChooser.getExtensionFilters().add(
-                    new FileChooser.ExtensionFilter("sql", "*.sql"));
+                    new FileChooser.ExtensionFilter("SQL", "*.sql"));
             File file = fileChooser.showSaveDialog(dashBoardWindow);
             if (file != null) {
-                switch (tabID) {
-                    case 0:
-                        chartRT.exportSQLFile(file);
-                        break;
-                    case 1:
-                        chartHistorical.exportSQLFile(file);
-                        break;
-                    case 2:
-                        System.out.print("Can't export from excel right now");
-                        break;
-                }
-                System.out.println(file);
+                assert selectedChart != null;
+                selectedChart.exportSQLFile(file);
+                System.out.println("SQL saved to " + file);
             }
         } catch (IOException e) {
             e.printStackTrace();

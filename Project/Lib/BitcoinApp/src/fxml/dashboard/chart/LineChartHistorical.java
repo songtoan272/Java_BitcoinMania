@@ -2,16 +2,26 @@ package fxml.dashboard.chart;
 
 import fxml.util.MyTooltip;
 import io.Export;
+import io.realtime.FetchPriceURL;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.WritableImage;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import price.ListPriceBTC;
 import price.PriceBTC;
-import io.realtime.FetchPriceURL;
 
+import javax.imageio.ImageIO;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.util.LinkedList;
@@ -195,14 +205,13 @@ public class LineChartHistorical extends LineChart<String, Number> implements Ex
     }
 
     public void exportSQLFile(File file) {
-
+        String table = "table";
         try (PrintWriter writer = new PrintWriter(file)) {
-            LinkedList<PriceBTC> prices = (LinkedList<PriceBTC>) ListPriceBTC.byScale(FetchPriceURL.fetchHistoricalPrice(this.startDate, this.endDate), this.scale);
+            List<Data<String, Number>> prices = this.getData().get(0).getData();
             StringBuilder sb = new StringBuilder();
-
             //All insertion line
-            for (int i = 0; i < prices.size(); i++ ) {
-                sb.append("INSERT INTO " + "table" + " (date, value, currency) VALUES ('" + prices.get(i).getDatetime() + "', '" + prices.get(i).getPriceUSD() + "', '" + "USD" + "')");
+            for (Data<String, Number> d : prices) {
+                sb.append("INSERT INTO " + table + " (date, value, currency) VALUES ('" + d.getXValue() + "', '" + d.getYValue() + "', '" + "USD" + "')");
                 sb.append("\n");
             }
             writer.write(sb.toString());
@@ -210,6 +219,50 @@ public class LineChartHistorical extends LineChart<String, Number> implements Ex
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
+
+        }
+    }
+
+    @Override
+    public void exportPDFFile(File file){
+        List<Data<String, Number>> prices = this.getData().get(0).getData();
+        //Open PDF
+        try (PDDocument doc = new PDDocument()) {
+            PDPage page1 = new PDPage();
+            doc.addPage(page1);
+            PDPageContentStream contentStreamImg = new PDPageContentStream(doc, page1, true, true);
+            //save image of graph to the same folder as the PDF file
+            WritableImage chartImg = this.snapshot(new SnapshotParameters(), null);
+            File imgFile = new File(file.getParent() +
+                    "/savedChart_" + LocalDate.now().toString() + ".png");
+            ImageIO.write(SwingFXUtils.fromFXImage(chartImg, null), "png", imgFile);
+            //write saved image to PDF file
+            PDImageXObject pdImage = PDImageXObject.createFromFile(imgFile.getAbsolutePath(), doc);
+            contentStreamImg.drawImage(pdImage, 0, 0,
+                    (float) chartImg.getWidth()/2, (float) chartImg.getHeight()/2);
+            contentStreamImg.close();
+            //write text to PDF
+            PDPage page2 = new PDPage();
+            doc.addPage(page2);
+            PDPageContentStream contentStreamText = new PDPageContentStream(doc, page2, true, true);
+            contentStreamText.beginText();
+            contentStreamText.setFont(PDType1Font.TIMES_ROMAN, 12);
+            contentStreamText.setLeading(14.5f);
+            contentStreamText.newLineAtOffset(25, 725);
+            contentStreamText.showText("Currency: USD");
+            contentStreamText.showText("DATE                     | PRICE ");
+            contentStreamText.newLine();
+            // Write data to PDF
+            for (Data<String, Number> d: prices){
+                contentStreamText.showText(d.getXValue() + " | " + d.getYValue());
+                contentStreamText.newLine();
+            }
+            contentStreamText.endText();
+            contentStreamText.close();
+
+            doc.save(file);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
