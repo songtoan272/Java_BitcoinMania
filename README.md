@@ -15,9 +15,9 @@ This project aims to build an app with JAVAFX in order to preview bitcoin value 
 * [JAVAFX  11.0.2](https://gluonhq.com/products/javafx/) for GUI
 * [GIT](https://git-scm.com/)
 * [Github](https://github.com/)
-* [MySQL] 
-* [Apache POI] for excel reader
-* [API Coindesk] for Bitcoin Price
+* [MySQL](https://www.mysql.com/)
+* [Apache POI](https://poi.apache.org/) for excel reader
+* [API Coindesk](https://www.coindesk.com/coindesk-api) for Bitcoin Price
 
 ### Setup and run
 To use the login system and SQL export, install MySQL and create a database name bitcoin_mania then change the "username" and "password" to the database in the class MySQLServer
