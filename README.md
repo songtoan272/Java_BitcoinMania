@@ -23,7 +23,8 @@ This project aims to build an app with JAVAFX in order to preview bitcoin value 
 To use the login system and SQL export, install MySQL and create a database name bitcoin_mania then change the "username" and "password" to the database in the class MySQLServer
 
 ### Features
-The application provides 3 types of chart to represent the price curve of Bitcoin and allow user to save the filtered price points in CSV, PDF or SQL file. 
+Authentification system allowing login and register to the application by using MySQL.
+Providing 3 types of chart to represent the price curve of Bitcoin and allow user to save the filtered price points in CSV, PDF or SQL file. 
 
 1. The realtime chart:
 - Update the realtime price of Bitcoin from the starting moment of the application
