@@ -2,6 +2,7 @@ package fxml.dashboard.chart;
 
 import fxml.util.AlertBox;
 import fxml.util.MyTooltip;
+import io.Export;
 import io.realtime.FetchPriceURL;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -12,15 +13,18 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Tooltip;
+import price.ListPriceBTC;
 import price.PriceBTC;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class LineChartRT extends LineChart<String, Number> {
+public class LineChartRT extends LineChart<String, Number> implements Export {
 
     final int WINDOW_SIZE = 100;
     private ScheduledExecutorService scheduledExecutorService;
@@ -37,8 +41,8 @@ public class LineChartRT extends LineChart<String, Number> {
 
     public LineChartRT() {
         super(new CategoryAxis(), new NumberAxis());
-        CategoryAxis xAxis = (CategoryAxis)  this.getXAxis();
-        NumberAxis yAxis = (NumberAxis)  this.getYAxis();
+        CategoryAxis xAxis = (CategoryAxis) this.getXAxis();
+        NumberAxis yAxis = (NumberAxis) this.getYAxis();
 
         //defining the axes
 //        xAxis.setLabel("Date");
@@ -62,7 +66,7 @@ public class LineChartRT extends LineChart<String, Number> {
         lowerBound = 0.0;
         upperBound = 0.0;
         liveDataSeries = new Series<>();
-        liveDataSeries.setName("Price in "+currency);
+        liveDataSeries.setName("Price in " + currency);
         allPrices = new LinkedList<>();
         lastClose = FetchPriceURL.fetchLastClose();
         overUpper = new SimpleBooleanProperty(this, "overUpper", false);
@@ -82,7 +86,7 @@ public class LineChartRT extends LineChart<String, Number> {
         this.updateData();
     }
 
-    private void updateData(){
+    private void updateData() {
         ObservableList<Series<String, Number>> data = this.getData();
         Series<String, Number> lowerThresholdSeries = new Series<>();
         lowerThresholdSeries.setName("LowerBound");
@@ -120,16 +124,16 @@ public class LineChartRT extends LineChart<String, Number> {
                 checkBounds(price.getPrice(currency));
                 //set tooltip for the new data point of the graph
                 Tooltip.install(pricePoint.getNode(),
-                        new MyTooltip("Date: " + pricePoint.getXValue() +"\n" +
+                        new MyTooltip("Date: " + pricePoint.getXValue() + "\n" +
                                 "Price: " + pricePoint.getYValue() + " " + currency + "\n" +
                                 tendency()));
 
-                if (lowerBound > 0.0){
+                if (lowerBound > 0.0) {
                     Data<String, Number> lowerPoint = new Data<>(price.getDatetime().toString(), lowerBound);
                     lowerThresholdSeries.getData().add(lowerPoint);
                     lowerPoint.getNode().setVisible(false);
                 }
-                if (upperBound > 0.0){
+                if (upperBound > 0.0) {
                     XYChart.Data<String, Number> upperPoint = new Data<>(price.getDatetime().toString(), upperBound);
                     upperThresholdSeries.getData().add(upperPoint);
                     upperPoint.getNode().setVisible(false);
@@ -145,29 +149,29 @@ public class LineChartRT extends LineChart<String, Number> {
         }, 0, 1, TimeUnit.MINUTES);
     }
 
-    public void stopUpdate(){
+    public void stopUpdate() {
         scheduledExecutorService.shutdownNow();
         scheduledExecutorService.shutdown();
     }
 
 
-    private String tendency(){
+    private String tendency() {
         double currentPrice = liveDataSeries.getData()
-                .get(liveDataSeries.getData().size()-1)
+                .get(liveDataSeries.getData().size() - 1)
                 .getYValue().doubleValue();
-        if (currentPrice < lastClose){
+        if (currentPrice < lastClose) {
             double percentage = (lastClose - currentPrice) / lastClose * 100.0;
             return String.format("v%.2f", percentage) + "%";
-        }else{
+        } else {
             double percentage = (currentPrice - lastClose) / lastClose * 100.0;
             return String.format("^%.2f", percentage) + "%";
         }
     }
 
-    private void switchCurrencyLive(){
+    private void switchCurrencyLive() {
         liveDataSeries.getData().clear();
         XYChart.Data<String, Number> pricePoint;
-        for (PriceBTC p : allPrices){
+        for (PriceBTC p : allPrices) {
             pricePoint = switch (currency) {
                 case "USD" -> new XYChart.Data<>(p.getDatetime().toString(), p.getPriceUSD());
                 case "EUR" -> new XYChart.Data<>(p.getDatetime().toString(), p.getPriceEUR());
@@ -176,23 +180,23 @@ public class LineChartRT extends LineChart<String, Number> {
             };
             liveDataSeries.getData().add(pricePoint);
             Tooltip.install(pricePoint.getNode(),
-                    new MyTooltip("Date: " + pricePoint.getXValue() +"\n" +
+                    new MyTooltip("Date: " + pricePoint.getXValue() + "\n" +
                             "Price: " + pricePoint.getYValue() + " " + currency + "\n" +
                             tendency()));
         }
     }
 
-    private void updateThreshold(boolean isUpper){
-        Series<String, Number> series = this.getData().get(isUpper ?1:2);
+    private void updateThreshold(boolean isUpper) {
+        Series<String, Number> series = this.getData().get(isUpper ? 1 : 2);
         series.getData().clear();
-        for (Data<String, Number> d: liveDataSeries.getData()){
+        for (Data<String, Number> d : liveDataSeries.getData()) {
             Data<String, Number> point = new Data<>(d.getXValue(),
-                    isUpper ? this.upperBound:this.lowerBound);
+                    isUpper ? this.upperBound : this.lowerBound);
             series.getData().add(point);
             point.getNode().setVisible(false);
         }
         Tooltip.install(series.getNode(), new MyTooltip(
-                isUpper? "Upper Threshold: " + this.upperBound:
+                isUpper ? "Upper Threshold: " + this.upperBound :
                         "Lower Threshold: " + this.lowerBound
         ));
     }
@@ -202,7 +206,7 @@ public class LineChartRT extends LineChart<String, Number> {
     }
 
     public void setCurrency(String currency) {
-        if (!this.currency.equals(currency)){
+        if (!this.currency.equals(currency)) {
             this.currency = currency;
             this.switchCurrencyLive();
         }
@@ -213,7 +217,7 @@ public class LineChartRT extends LineChart<String, Number> {
     }
 
     public void setLowerBound(double lowerBound) {
-        if (this.lowerBound == lowerBound){
+        if (this.lowerBound == lowerBound) {
             return;
         }
         this.lowerBound = lowerBound;
@@ -238,36 +242,125 @@ public class LineChartRT extends LineChart<String, Number> {
         this.lastClose = lastClose;
     }
 
-    private void checkBounds(double lastPrice){
-        if  (upperBound > 0.0){
-            if (lastPrice >= upperBound && !overUpper.get()){
+    private void checkBounds(double lastPrice) {
+        if (upperBound > 0.0) {
+            if (lastPrice >= upperBound && !overUpper.get()) {
                 overUpper.setValue(true);
-            }else if (lastPrice <= upperBound && overUpper.get()){
+            } else if (lastPrice <= upperBound && overUpper.get()) {
                 overUpper.setValue(false);
             }
         }
-        if (lowerBound > 0.0){
-            if (lastPrice <= lowerBound && !belowLower.get()){
+        if (lowerBound > 0.0) {
+            if (lastPrice <= lowerBound && !belowLower.get()) {
                 belowLower.set(true);
-            }else if (lastPrice >= lowerBound && belowLower.get()){
+            } else if (lastPrice >= lowerBound && belowLower.get()) {
                 belowLower.set(false);
             }
         }
     }
 
-    private void alert(boolean isUpper){
+    private void alert(boolean isUpper) {
         String title = "Threshold Passed!!!";
         String message;
-        if (isUpper){
+        if (isUpper) {
             message = "The price has gone over the upperbound.\n" +
                     "Upperbound = " + this.upperBound + "\n" +
                     "Current Price = " + this.liveDataSeries.getData().get(
-                            this.liveDataSeries.getData().size()-1).getYValue() + this.currency;
-        }else{
+                    this.liveDataSeries.getData().size() - 1).getYValue() + this.currency;
+        } else {
             message = "The price has gone below the lowerbound.\n" +
                     "Lowerbound = " + this.upperBound + "\n" +
                     "Current Price = " + this.liveDataSeries.getData().get(0).getYValue() + this.currency;
         }
         AlertBox.display(title, message);
+    }
+
+    public void exportCSVFile() {
+        try (PrintWriter writer = new PrintWriter(new File("../../../export.csv"))) {
+            LinkedList<PriceBTC> prices = this.allPrices;
+            StringBuilder sb = new StringBuilder();
+            sb.append("id,");
+            sb.append(',');
+            sb.append("date");
+            sb.append(',');
+            sb.append("value");
+            sb.append(',');
+            sb.append("currency");
+            sb.append('\n');
+
+            for (int i = 0; i < prices.size(); i++) {
+                sb.append(i + ",");
+                sb.append(prices.get(i).getDatetime());
+                sb.append(",");
+                switch(this.currency) {
+                    case "USD":
+                        sb.append(prices.get(i).getPriceUSD());
+                        sb.append(",");
+                        sb.append("USD");
+                        break;
+                    case "EUR":
+                        sb.append(prices.get(i).getPriceEUR());
+                        sb.append(",");
+                        sb.append("EUR");
+                        break;
+                    case "GBP":
+                        sb.append(prices.get(i).getPriceGBP());
+                        sb.append(",");
+                        sb.append("BBP");
+                        break;
+                }
+                sb.append("\n");
+            }
+
+            writer.write(sb.toString());
+
+            System.out.println("done exporting CSV file in root folder!");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void exportSQLFile() {
+        String table = "table";
+        try (PrintWriter writer = new PrintWriter(new File("../../../export.sql"))) {
+            LinkedList<PriceBTC> prices = this.allPrices;
+            StringBuilder sb = new StringBuilder();
+            String cur = "USD";
+            switch(this.currency) {
+                case "USD":
+                    cur = "USD";
+                    break;
+                case "EUR":
+                    cur = "EUR";
+                    break;
+                case "GBP":
+                    cur = "GBP";
+                    break;
+            }
+
+            //All insertion line
+            for (int i = 0; i < prices.size(); i++) {
+                switch (cur) {
+                    case "USD":
+                        sb.append("INSERT INTO " + table + " (date, value, currency) VALUES ('" + prices.get(i).getDatetime() + "', '" + prices.get(i).getPriceUSD() + "', '" + cur + "')");
+                        break;
+                    case "EUR":
+                        sb.append("INSERT INTO " + table + " (date, value, currency) VALUES ('" + prices.get(i).getDatetime() + "', '" + prices.get(i).getPriceEUR() + "', '" + cur + "')");
+                        break;
+                    case "GBP":
+                        sb.append("INSERT INTO " + table + " (date, value, currency) VALUES ('" + prices.get(i).getDatetime() + "', '" + prices.get(i).getPriceGBP() + "', '" + cur + "')");
+                        break;
+
+                }
+                sb.append("\n");
+            }
+            writer.write(sb.toString());
+            System.out.println("done exporting SQL file in root folder!");
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+
+        }
     }
 }

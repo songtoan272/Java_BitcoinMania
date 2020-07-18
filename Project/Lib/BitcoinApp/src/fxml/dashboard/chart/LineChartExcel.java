@@ -1,7 +1,7 @@
 package fxml.dashboard.chart;
 
 import fxml.util.MyTooltip;
-import io.excel.ExcelReader;
+import io.Export;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
@@ -11,11 +11,13 @@ import price.ListPriceBTC;
 import price.PriceBTC;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class LineChartExcel extends LineChart<String, Number> {
+public class LineChartExcel extends LineChart<String, Number> implements Export {
     double lowerBound;
     double upperBound;
     String scale;
@@ -47,7 +49,6 @@ public class LineChartExcel extends LineChart<String, Number> {
 
         this.setTitle("Excel Data");
         this.setAnimated(true);
-        this.setAlternativeColumnFillVisible(false);
 
         this.upperBound = 0.0;
         this.lowerBound = 0.0;
@@ -80,7 +81,58 @@ public class LineChartExcel extends LineChart<String, Number> {
             ));
         }
     }
+    public void exportCSVFile() {
+        try (PrintWriter writer = new PrintWriter(new File("../../../export.csv"))) {
+            List<PriceBTC> prices = ListPriceBTC.byDates(this.allPrices, this.fromTime, this.toTime);
+            prices = ListPriceBTC.byScale(prices, this.scale);
+            StringBuilder sb = new StringBuilder();
+            sb.append("id,");
+            sb.append(',');
+            sb.append("date");
+            sb.append(',');
+            sb.append("value");
+            sb.append(',');
+            sb.append("currency");
+            sb.append('\n');
 
+            for (int i = 0; i < prices.size(); i++ ) {
+                sb.append(i + ",");
+                sb.append(prices.get(i).getDatetime());
+                sb.append(",");
+               sb.append(prices.get(i).getPriceUSD());
+                sb.append(",");
+               sb.append("USD");
+                sb.append("\n");
+            }
+
+            writer.write(sb.toString());
+
+            System.out.println("done exporting CSV file in root folder!");
+
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public void exportSQLFile() {
+        String table = "table";
+        try (PrintWriter writer = new PrintWriter(new File("../../../export.csv"))) {
+            List<PriceBTC> prices = ListPriceBTC.byDates(this.allPrices, this.fromTime, this.toTime);
+            prices = this.allPrices;
+            System.out.print(prices.get(0));
+            StringBuilder sb = new StringBuilder();
+
+            //All insertion line
+            for (int i = 0; i < prices.size(); i++ ) {
+                sb.append("INSERT INTO" + table + "(date, value, currency) VALUES ('" + prices.get(i).getDatetime() + "', '" + prices.get(i).getPriceUSD() + "', '" + "USD" + "')");
+                sb.append("\n");
+            }
+            writer.write(sb.toString());
+            System.out.println("done exporting SQL file in root folder!");
+
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+    }
     private void updateData(){
         List<PriceBTC> prices = ListPriceBTC.byDates(this.allPrices, this.fromTime, this.toTime);
         prices = ListPriceBTC.byScale(prices, this.scale);
@@ -89,30 +141,31 @@ public class LineChartExcel extends LineChart<String, Number> {
 
     public void changeSourceFile(File file){
         System.out.println("Source Excel changed to " + file.getAbsolutePath());
-        this.allPrices = ExcelReader.read(file);
-        if (this.allPrices == null) return;
-        if (this.allPrices.size()==0) return;
-        this.scale = "5 MINS";
-        this.fromTime = this.allPrices.get(0).getDatetime();
-        this.toTime = this.allPrices.get(allPrices.size()-1).getDatetime();
-        this.feedData(this.allPrices);
+//        this.allPrices = ExcelReader.read(file);
+//        if (this.allPrices == null) return;
+//        if (this.allPrices.size()==0) return;
+//        this.scale = "5 MINS";
+//        this.fromTime = this.allPrices.get(0).getDatetime();
+//        this.toTime = this.allPrices.get(allPrices.size()-1).getDatetime();
+//        this.feedData(this.allPrices);
     }
 
     private void updateThreshold(boolean isUpper){
+        if ((isUpper ? this.upperBound:this.lowerBound) == 0.0){
+            return;
+        }
         Series<String, Number> series = this.getData().get(isUpper ?1:2);
+        Series<String, Number> dataSeries = this.getData().get(0);
         series.getData().clear();
-        int count = 0;
-        for (Data<String, Number> d: this.getData().get(0).getData()){
+        for (Data<String, Number> d: dataSeries.getData()){
             Data<String, Number> point = new Data<>(d.getXValue(),
                     isUpper ? this.upperBound:this.lowerBound);
             series.getData().add(point);
             point.getNode().setVisible(false);
-            if (isUpper && (double) d.getYValue() >= this.upperBound) count++;
-            if (!isUpper && (double) d.getYValue() <= this.lowerBound) count++;
         }
         Tooltip.install(series.getNode(), new MyTooltip(
-                isUpper? "Cross Upper Threshold: " + count + " times.":
-                        "Cross Lower Threshold: " + count + " times."
+                isUpper? "Upper Threshold: " + this.upperBound:
+                        "Lower Threshold: " + this.lowerBound
         ));
     }
 

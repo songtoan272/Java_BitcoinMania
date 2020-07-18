@@ -10,9 +10,9 @@ public class MySQLServer {
     private static String pw;
 
     static {
-        url = "jdbc:mysql://localhost:3306/bitcoin_mania?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
-        user = "songtoan272";
-        pw = "Casota272!";
+        url = "jdbc:mysql://localhost:8081/bitcoin_mania?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
+        user = "damso";
+        pw = "zzz";
     }
 
 
@@ -96,13 +96,13 @@ public class MySQLServer {
             //   which returns an int indicating the number of rows affected.
 
 //            list all columns
-                ArrayList cols = new ArrayList(kvsInsert.keySet());
-                StringBuffer colsStr = new StringBuffer("(");
-                for (int i = 0; i < cols.size(); i++){
-                    colsStr.append(cols.get(i) + ", ");
-                }
-                colsStr.replace(colsStr.length()-2, colsStr.length(), ")");
-                System.out.println("cols = " + colsStr);
+            ArrayList cols = new ArrayList(kvsInsert.keySet());
+            StringBuffer colsStr = new StringBuffer("(");
+            for (int i = 0; i < cols.size(); i++){
+                colsStr.append(cols.get(i) + ", ");
+            }
+            colsStr.replace(colsStr.length()-2, colsStr.length(), ")");
+            System.out.println("cols = " + colsStr);
 
             // INSERT many record
             for (int i=0; i < kvsInsert.size(); i++){
