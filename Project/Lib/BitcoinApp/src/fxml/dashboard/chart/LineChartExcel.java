@@ -1,6 +1,7 @@
 package fxml.dashboard.chart;
 
 import fxml.util.MyTooltip;
+import io.Export;
 import io.excel.ExcelReader;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.CategoryAxis;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class LineChartExcel extends LineChart<String, Number> {
+public class LineChartExcel extends LineChart<String, Number> implements Export {
     double lowerBound;
     double upperBound;
     String scale;
@@ -173,5 +174,15 @@ public class LineChartExcel extends LineChart<String, Number> {
         if (this.allPrices != null){
             return this.allPrices.get(this.allPrices.size()-1).getDatetime().toLocalDate();
         }else return null;
+    }
+
+    @Override
+    public void exportCSVFile(File file) {
+
+    }
+
+    @Override
+    public void exportSQLFile(File file) {
+
     }
 }

@@ -3,6 +3,7 @@ package fxml.dashboard;
 import fxml.dashboard.chart.LineChartExcel;
 import fxml.dashboard.chart.LineChartHistorical;
 import fxml.dashboard.chart.LineChartRT;
+import io.Export;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -13,7 +14,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.Chart;
-import javafx.scene.chart.LineChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -524,7 +524,7 @@ public class DashboardSceneController {
     void exportCSV(ActionEvent event) {
         try {
             int tabID = tabPane.getSelectionModel().getSelectedIndex();
-            LineChart<String, Number> selectedChart = switch (tabID) {
+            Export selectedChart = switch (tabID) {
                 case 0 -> chartRT;
                 case 1 -> chartHistorical;
                 case 2 -> chartFromExcel;
@@ -542,18 +542,8 @@ public class DashboardSceneController {
                     new FileChooser.ExtensionFilter("csv", "*.csv"));
             File file = fileChooser.showSaveDialog(dashBoardWindow);
             if (file != null) {
-               switch (tabID) {
-                   case 0:
-                       chartRT.exportCSVFile(file);
-                       break;
-                   case 1:
-                       chartHistorical.exportCSVFile(file);
-                       break;
-                   case 2:
-                       System.out.print("Can't export from excel right now");
-                       break;
-               }
-                System.out.println(file);
+                assert selectedChart != null;
+                selectedChart.exportCSVFile(file);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -586,7 +576,7 @@ public class DashboardSceneController {
     void exportSQL(ActionEvent event) {
         try {
             int tabID = tabPane.getSelectionModel().getSelectedIndex();
-            LineChart<String, Number> selectedChart = switch (tabID) {
+            Export selectedChart = switch (tabID) {
                 case 0 -> chartRT;
                 case 1 -> chartHistorical;
                 case 2 -> chartFromExcel;

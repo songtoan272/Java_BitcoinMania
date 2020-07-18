@@ -18,6 +18,7 @@ import price.PriceBTC;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -276,10 +277,8 @@ public class LineChartRT extends LineChart<String, Number> implements Export {
 
     public void exportCSVFile(File file) {
         try (PrintWriter writer = new PrintWriter(file)) {
-            LinkedList<PriceBTC> prices = this.allPrices;
+            List<Data<String, Number>> prices = this.getData().get(0).getData();
             StringBuilder sb = new StringBuilder();
-            sb.append("id,");
-            sb.append(',');
             sb.append("date");
             sb.append(',');
             sb.append("value");
@@ -287,33 +286,16 @@ public class LineChartRT extends LineChart<String, Number> implements Export {
             sb.append("currency");
             sb.append('\n');
 
-            for (int i = 0; i < prices.size(); i++) {
-                sb.append(i + ",");
-                sb.append(prices.get(i).getDatetime());
-                sb.append(",");
-                switch(this.currency) {
-                    case "USD":
-                        sb.append(prices.get(i).getPriceUSD());
-                        sb.append(",");
-                        sb.append("USD");
-                        break;
-                    case "EUR":
-                        sb.append(prices.get(i).getPriceEUR());
-                        sb.append(",");
-                        sb.append("EUR");
-                        break;
-                    case "GBP":
-                        sb.append(prices.get(i).getPriceGBP());
-                        sb.append(",");
-                        sb.append("BBP");
-                        break;
-                }
-                sb.append("\n");
+            for (Data<String, Number> d: prices){
+                sb.append(d.getXValue().toString());
+                sb.append(',');
+                sb.append(d.getYValue());
+                sb.append(',');
+                sb.append(currency);
+                sb.append('\n');
             }
-
             writer.write(sb.toString());
-
-            System.out.println("done exporting CSV file");
+            System.out.println("done exporting CSV file to "+file);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());

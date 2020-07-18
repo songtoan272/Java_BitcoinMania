@@ -169,10 +169,8 @@ public class LineChartHistorical extends LineChart<String, Number> implements Ex
 
     public void exportCSVFile(File file) {
         try (PrintWriter writer = new PrintWriter(file)) {
-            LinkedList<PriceBTC> prices = (LinkedList<PriceBTC>) ListPriceBTC.byScale(FetchPriceURL.fetchHistoricalPrice(this.startDate, this.endDate), this.scale);
+            List<Data<String, Number>> prices = this.getData().get(0).getData();
             StringBuilder sb = new StringBuilder();
-            sb.append("id,");
-            sb.append(',');
             sb.append("date");
             sb.append(',');
             sb.append("value");
@@ -180,19 +178,16 @@ public class LineChartHistorical extends LineChart<String, Number> implements Ex
             sb.append("currency");
             sb.append('\n');
 
-            for (int i = 0; i < prices.size(); i++ ) {
-                sb.append(i + ",");
-                sb.append(prices.get(i).getDatetime());
-                sb.append(",");
-                sb.append(prices.get(i).getPriceUSD());
-                sb.append(",");
+            for (Data<String, Number> d: prices){
+                sb.append(d.getXValue().toString());
+                sb.append(',');
+                sb.append(d.getYValue());
+                sb.append(',');
                 sb.append("USD");
-                sb.append("\n");
+                sb.append('\n');
             }
-
             writer.write(sb.toString());
-
-            System.out.println("done exporting CSV file");
+            System.out.println("done exporting CSV file to "+file);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
