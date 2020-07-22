@@ -1,6 +1,6 @@
 package fxml.dashboard.chart;
 
-import fxml.util.MyTooltip;
+import fxml.dashboard.util.MyTooltip;
 import io.Export;
 import io.realtime.FetchPriceURL;
 import javafx.embed.swing.SwingFXUtils;

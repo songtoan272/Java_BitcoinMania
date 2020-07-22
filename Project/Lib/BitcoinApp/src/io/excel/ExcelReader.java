@@ -73,10 +73,10 @@ public class ExcelReader {
                         ZoneId.systemDefault()),
                         sheet.getRow(i).getCell(1).getNumericCellValue()
                 ));
-                System.out.println(
-                        "row " + i + ":" +
-                                "date: " +  sheet.getRow(i).getCell(0).getDateCellValue().toString()+ "; " +
-                                "price: " + sheet.getRow(i).getCell(1).getNumericCellValue());
+//                System.out.println(
+//                        "row " + i + ":" +
+//                                "date: " +  sheet.getRow(i).getCell(0).getDateCellValue().toString()+ "; " +
+//                                "price: " + sheet.getRow(i).getCell(1).getNumericCellValue());
             }
             return data;
         } catch(Exception e)
@@ -84,10 +84,5 @@ public class ExcelReader {
             e.printStackTrace();
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-        String filePath = "/home/songtoan272/Documents/Cours/Semestre_5/Java_Bases/BitcoinMania/Project/Dataset/Fichier-Excel.xlsx";
-        read(filePath);
     }
 }

@@ -1,7 +1,7 @@
 package fxml.dashboard.chart;
 
-import fxml.util.AlertBox;
-import fxml.util.MyTooltip;
+import fxml.dashboard.util.AlertBox;
+import fxml.dashboard.util.MyTooltip;
 import io.Export;
 import io.realtime.FetchPriceURL;
 import javafx.application.Platform;

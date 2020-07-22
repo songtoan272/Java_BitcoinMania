@@ -1,7 +1,5 @@
 package price;
 
-import io.excel.ExcelReader;
-
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -50,14 +48,5 @@ public class ListPriceBTC {
             }
         }
         return l.subList(start, end);
-    }
-
-    public static void main(String[] args) {
-        List<PriceBTC> prices = ExcelReader.read("/home/songtoan272/Documents/Cours/Semestre_5/Java_Bases/BitcoinMania/Project/Dataset/Fichier-Excel.xlsx");
-        prices = byScale(prices, "15 DAYS");
-        for (PriceBTC p : prices){
-            System.out.println("Datetime: " +p.getDatetime() + "\n" +
-                    "Price: " + p.getPriceUSD());
-        }
     }
 }

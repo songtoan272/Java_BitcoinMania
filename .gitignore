@@ -9,3 +9,6 @@ Projet/Lib/BitcoinApp/src/fxml/dashboard/LineChartWithHover.java
 *.csv
 *.json
 *.zip
+how_to_start_BitcoinApp.mkv
+.gitignore
+

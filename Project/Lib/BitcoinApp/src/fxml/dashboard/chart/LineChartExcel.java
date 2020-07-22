@@ -1,6 +1,6 @@
 package fxml.dashboard.chart;
 
-import fxml.util.MyTooltip;
+import fxml.dashboard.util.MyTooltip;
 import io.Export;
 import io.excel.ExcelReader;
 import javafx.collections.ObservableList;
@@ -28,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class LineChartExcel extends LineChart<String, Number> implements Export {
+    final int WINDOW_SIZE = 200; //maximum data point can be plotted on the chart
     double lowerBound;
     double upperBound;
     String scale;
@@ -80,7 +81,7 @@ public class LineChartExcel extends LineChart<String, Number> implements Export 
         if (prices == null) return;
         Series<String, Number> newDataSeries = this.getData().get(0);
         newDataSeries.getData().clear();
-        for (PriceBTC p : prices) {
+        for (PriceBTC p : prices.subList(0, Math.min(WINDOW_SIZE, prices.size()))) {
             Data<String, Number> point = new Data<>(
                     p.getDatetime().toString(),
                     p.getPriceUSD()

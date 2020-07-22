@@ -19,10 +19,6 @@ public class MySQLServer {
 
     public static void setUrl(String url) {
         MySQLServer.url = url;
-        Class<MySQLServer> clazz = MySQLServer.class;
-//        Constructor<MySQLServer> cons = clazz.getDeclaredConstructor();
-//        cons.setAccessible(false);
-
     }
 
     public static void setUser(String user) {
@@ -49,60 +45,37 @@ public class MySQLServer {
     }
 
 
-    public static ArrayList<HashMap<String, Object>> select(String strSelect){
-        try (
-                // Step 1: Allocate a database 'Connection' object
-                Connection conn = DriverManager.getConnection(url, user, pw);   // For MySQL only
-                // The format is: "jdbc:mysql://hostname:port/databaseName", "username", "password"
-
-                // Step 2: Allocate a 'Statement' object in the Connection
-                Statement stmt = conn.createStatement();
-        ) {
-//            System.out.println("The SQL statement is: " + strSelect + "\n"); // Echo For debugging
-
-            ResultSet rset = stmt.executeQuery(strSelect);
-            return MySQLServer.resultSetToArrayList(rset);
-
-        } catch(SQLException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+    public static ArrayList<HashMap<String, Object>> select(String strSelect) throws SQLException {
+        Connection conn = DriverManager.getConnection(url, user, pw);   // For MySQL only
+        // The format is: "jdbc:mysql://hostname:port/databaseName", "username", "password"
+        Statement stmt = conn.createStatement();
+        ResultSet rset = stmt.executeQuery(strSelect);
+        stmt.close();
+        conn.close();
+        return MySQLServer.resultSetToArrayList(rset);
     }
 
-    public static void insertOne(String strInsert){
-        try (
-                // Step 1: Allocate a database 'Connection' object
-                Connection conn = DriverManager.getConnection(url, user, pw); // for MySQL only
-
-                // Step 2: Allocate a 'Statement' object in the Connection
-                Statement stmt = conn.createStatement();
-        ) {
-            // Step 3 & 4: Execute a SQL INSERT|DELETE statement via executeUpdate()
-            stmt.executeUpdate(strInsert);
-        } catch(SQLException ex) {
-            ex.printStackTrace();
-        }  // Step 5: Close conn and stmt - Done automatically by try-with-resources
+    public static void insertOne(String strInsert) throws SQLException {
+        Connection conn = DriverManager.getConnection(url, user, pw); // for MySQL only
+        Statement stmt = conn.createStatement();
+        stmt.executeUpdate(strInsert);
+        stmt.close();
+        conn.close();
     }
 
     public static void insertMany(String table, Map<String, List<String>> kvsInsert){
         try (
-                // Step 1: Allocate a database 'Connection' object
                 Connection conn = DriverManager.getConnection(url, user, pw); // for MySQL only
-
-                // Step 2: Allocate a 'Statement' object in the Connection
                 Statement stmt = conn.createStatement();
         ) {
-            // Step 3 & 4: Execute a SQL INSERT|DELETE statement via executeUpdate(),
-            //   which returns an int indicating the number of rows affected.
-
 //            list all columns
-                ArrayList cols = new ArrayList(kvsInsert.keySet());
-                StringBuffer colsStr = new StringBuffer("(");
-                for (int i = 0; i < cols.size(); i++){
-                    colsStr.append(cols.get(i) + ", ");
-                }
-                colsStr.replace(colsStr.length()-2, colsStr.length(), ")");
-                System.out.println("cols = " + colsStr);
+            ArrayList<String> cols = new ArrayList(kvsInsert.keySet());
+            StringBuffer colsStr = new StringBuffer("(");
+            for (int i = 0; i < cols.size(); i++){
+                colsStr.append(cols.get(i) + ", ");
+            }
+            colsStr.replace(colsStr.length()-2, colsStr.length(), ")");
+            System.out.println("cols = " + colsStr);
 
             // INSERT many record
             for (int i=0; i < kvsInsert.size(); i++){
@@ -121,36 +94,7 @@ public class MySQLServer {
             }
         } catch(SQLException ex) {
             ex.printStackTrace();
-        }  // Step 5: Close conn and stmt - Done automatically by try-with-resources
+        }
     }
 
-    public static void delete(String table, Map<String, List<String>> kvsInsert) {
-        try (
-                // Step 1: Allocate a database 'Connection' object
-                Connection conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/ebookshop?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-                        "myuser", "xxxx"); // for MySQL only
-
-                // Step 2: Allocate a 'Statement' object in the Connection
-                Statement stmt = conn.createStatement();
-        ) {
-            // Step 3 & 4: Execute a SQL INSERT|DELETE statement via executeUpdate(),
-            //   which returns an int indicating the number of rows affected.
-
-            // DELETE records with id>=3000 and id<4000
-            String sqlDelete = "delete from books where id >= 3000 and id < 4000";
-            System.out.println("The SQL statement is: " + sqlDelete + "\n");  // Echo for debugging
-            int countDeleted = stmt.executeUpdate(sqlDelete);
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }  // Step 5: Close conn and stmt - Done automatically by try-with-resources
-    }
-
-    public static void main(String[] args) {
-        Map<String, List<String>> kvsInsert = new HashMap<>();
-        kvsInsert.put("username", Arrays.asList("damien", "thomas"));
-        kvsInsert.put("password", Arrays.asList("damien", "thomas"));
-        MySQLServer.insertMany("authentification", kvsInsert);
-        System.out.println(MySQLServer.select("select * from authentification where username='damien' and password='damien'").toString());
-    }
 }
